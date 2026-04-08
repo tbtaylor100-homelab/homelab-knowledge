@@ -1,13 +1,21 @@
-# Runbook: Add a New Credential
+# Runbook: Add a Credential to the Infra CI Namespace
 
-Use this runbook any time a new secret (API token, password, access key) needs to be
-available to CI workflows or other homelab consumers.
+Use this runbook when adding a new secret to the **shared infrastructure CI namespace**
+(`secret/homelab/ci`). This path holds credentials used by the `infra` repo's CI
+pipelines (Proxmox API token, MinIO access key, etc.) — things the IaC tooling needs
+to run `tofu plan` and `tofu apply`.
+
+> **This is not the right runbook for application secrets.**
+> If you are onboarding a new application with its own credentials and environments,
+> see [`provision-app-secrets.md`](provision-app-secrets.md) instead. Each app gets
+> its own isolated namespace (`secret/<app>/<env>`) and its own AppRole.
 
 ## Overview
 
-Credentials live in OpenBao at `secret/homelab/ci`. CI jobs authenticate via AppRole
-and read from that path. The only two values stored in Forgejo are `OPENBAO_ROLE_ID`
-and `OPENBAO_SECRET_ID` — everything else is fetched at runtime.
+Infra CI credentials live in OpenBao at `secret/homelab/ci`. The `infra` repo's CI
+jobs authenticate via a shared AppRole and read from that single path. The only two
+values stored in Forgejo are `OPENBAO_ROLE_ID` and `OPENBAO_SECRET_ID` — everything
+else is fetched at runtime.
 
 ## Prerequisites
 
