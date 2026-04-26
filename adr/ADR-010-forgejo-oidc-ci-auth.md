@@ -49,13 +49,8 @@ URL is not hardcoded in config. Two JWT roles enforce different access levels:
   OpenBao rejects the JWT if the `ref` claim is anything other than `refs/heads/main`,
   making it impossible to run `tofu apply` from a PR branch even if someone tries.
 
-**External Secrets Operator (ESO) is also deployed as foundational K8s infrastructure.**
-
-ESO is not used for CI workflows (which use per-job OIDC). It provides the standard
-pattern for future K8s application pods to pull secrets from OpenBao without any stored
-credentials. ESO's ServiceAccount authenticates to OpenBao via Kubernetes auth
-(`eso-reader` role). Deployed now so the pattern is available without rework when
-needed.
+K8s application pods (not CI) use a separate pattern — External Secrets Operator with
+the Kubernetes auth backend — covered in ADR-011.
 
 Key configuration choices:
 
@@ -66,8 +61,6 @@ Key configuration choices:
   token validation is cryptographic, not shared-secret
 - **Ansible `uri` module for OpenBao config** — runs from localhost against the API
   directly; no `kubectl exec` shell-quoting fragility; idempotent and re-runnable
-- **`ClusterSecretStore` scoped cluster-wide** — any future namespace can reference it
-  without duplicating connection config
 
 ## Consequences
 
@@ -82,9 +75,6 @@ Key configuration choices:
 - **Forgejo OIDC is ephemeral by design** — `ACTIONS_ID_TOKEN_REQUEST_URL` is only
   valid during an active job; hitting it from outside a runner returns 404. This is
   correct security behavior, not a bug.
-- **ESO is foundational, not yet functional** — CRDs and `ClusterSecretStore` are
-  live; `ExternalSecret` resources for specific apps will be created as those apps
-  are built. ESO adds no operational burden until it's used.
 - **Forgejo v15 is a hard dependency** — OIDC token support does not exist in v14;
   the Ansible upgrade playbook must run before the JWT auth backend is configured.
 - **OpenBao must remain unsealed** — unchanged from ADR-005; sealed OpenBao causes
