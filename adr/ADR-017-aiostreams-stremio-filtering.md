@@ -57,5 +57,5 @@ Migrating to a different content provider or protocol stack.
 
 - **Periodic regex review:** `WHITELISTED_REGEX_PATTERNS` in `kubernetes/aiostreams/configmap.yaml` must be reviewed periodically as stream availability patterns evolve. Update the ConfigMap and trigger an ArgoCD sync (`argocd app sync aiostreams`) to apply changes without a pod restart.
 - **`SECRET_KEY` immutability:** Generated once during Phase 1 provisioning via `openssl rand -hex 32`, stored in OpenBao at `secret/aiostreams/production`, and synced via ExternalSecret. Never rotated. If the OpenBao secret is lost, a new deployment requires wiping the SQLite database at `/app/data/db.sqlite` and re-onboarding all user configurations.
-- **Intranet-only exposure is an accepted constraint:** AIOStreams is reachable on LAN only. External internet access requires a Traefik `IngressRoute` and DNS configuration (see ADR-019).
+- **Intranet-only exposure is an accepted constraint:** AIOStreams is reachable on LAN only. External internet access would require a Traefik `IngressRoute` and internal DNS (deferred).
 - **SQLite persistence is adequate for single-user homelab:** The SQLite database at `/app/data` on a `local-path` PVC is sufficient for the current single-user setup. Multi-replica HA would require PostgreSQL (deferred).
