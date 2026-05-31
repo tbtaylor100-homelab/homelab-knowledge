@@ -61,6 +61,18 @@ screaming-morphs/production/environment    → app env vars (production)
 screaming-morphs/production/cloudflare-tunnel  → tunnel credential JSON
 ```
 
+## Scope
+
+This convention applies to **app-owned secrets** — secrets that belong to a specific application and are consumed by that application's pods.
+
+It does **not** apply to shared infrastructure credentials, which are owned by a cluster-level service rather than any single app. These retain their own path structure:
+
+| Path | Owner | Why it's out of scope |
+|------|-------|-----------------------|
+| `cloudflare/production` | cert-manager | Shared across the cluster; used for TLS cert issuance for all apps, not owned by any one app |
+
+If a secret is consumed by more than one app, or by a cluster-level service (cert-manager, ESO, Traefik), it is an infrastructure credential and does not belong under `<app>/`. If a secret is consumed exclusively by one app's pods, it is app-owned and this convention applies.
+
 ## Migration
 
 Existing flat paths (`screaming-morphs/staging`, `screaming-morphs/production`) must be migrated to the new convention. Migration steps:
